@@ -197,6 +197,12 @@ variable "load_balancer_health_check_retries" {
   default     = 3
 }
 
+variable "exclude_agents_from_external_load_balancers" {
+  description = "Add node.kubernetes.io/exclude-from-external-load-balancers=true label to agent nodes. Enable this if you use both the Terraform-managed ingress LB and CCM-managed LoadBalancer services, and want to prevent double-registration of agents to the CCM LBs. Note: This excludes agents from ALL CCM-managed LoadBalancer services, not just ingress."
+  type        = bool
+  default     = false
+}
+
 variable "control_plane_nodepools" {
   description = "Number of control plane nodes."
   type = list(object({
@@ -242,6 +248,7 @@ variable "agent_nodepools" {
     labels                     = list(string)
     taints                     = list(string)
     longhorn_volume_size       = optional(number)
+    longhorn_mount_path        = optional(string, "/var/longhorn")
     swap_size                  = optional(string, "")
     zram_size                  = optional(string, "")
     kubelet_args               = optional(list(string), ["kube-reserved=cpu=50m,memory=300Mi,ephemeral-storage=1Gi", "system-reserved=cpu=250m,memory=300Mi"])
@@ -261,6 +268,7 @@ variable "agent_nodepools" {
       labels                     = optional(list(string))
       taints                     = optional(list(string))
       longhorn_volume_size       = optional(number)
+      longhorn_mount_path        = optional(string, null)
       swap_size                  = optional(string, "")
       zram_size                  = optional(string, "")
       kubelet_args               = optional(list(string), ["kube-reserved=cpu=50m,memory=300Mi,ephemeral-storage=1Gi", "system-reserved=cpu=250m,memory=300Mi"])
@@ -301,6 +309,28 @@ variable "agent_nodepools" {
     condition = length(var.agent_nodepools) == 0 ? true : sum([for agent_nodepool in var.agent_nodepools : length(coalesce(agent_nodepool.nodes, {})) + coalesce(agent_nodepool.count, 0)]) <= 100
     # 154 because the private ip is derived from tonumber(key) + 101. See private_ipv4 in agents.tf
     error_message = "Hetzner does not support networks with more than 100 servers."
+  }
+
+  validation {
+    condition = alltrue(flatten([
+      for np in var.agent_nodepools : concat(
+        [
+          can(regex("^/var/[a-zA-Z0-9._-]+(/[a-zA-Z0-9._-]+)*$", np.longhorn_mount_path)) &&
+          !contains(split("/", np.longhorn_mount_path), "..") &&
+          !contains(split("/", np.longhorn_mount_path), ".")
+        ],
+        [
+          for node in values(coalesce(np.nodes, {})) : (
+            node.longhorn_mount_path == null || (
+              can(regex("^/var/[a-zA-Z0-9._-]+(/[a-zA-Z0-9._-]+)*$", node.longhorn_mount_path)) &&
+              !contains(split("/", node.longhorn_mount_path), "..") &&
+              !contains(split("/", node.longhorn_mount_path), ".")
+            )
+          )
+        ]
+      )
+    ]))
+    error_message = "Each longhorn_mount_path must be a valid, absolute path within a subdirectory of '/var/', not contain '.' or '..' components, and not end with a slash. This applies to both nodepool-level and node-level settings."
   }
 
 }
@@ -1209,6 +1239,12 @@ variable "agent_nodes_custom_config" {
 variable "k3s_registries" {
   description = "K3S registries.yml contents. It used to access private docker registries."
   default     = " "
+  type        = string
+}
+
+variable "k3s_kubelet_config" {
+  description = "K3S kubelet-config.yaml contents. Used to configure the kubelet."
+  default     = ""
   type        = string
 }
 

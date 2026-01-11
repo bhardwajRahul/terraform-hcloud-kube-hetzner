@@ -177,7 +177,7 @@ To manage your cluster with `kubectl`, you can either use SSH to connect to a co
 
 ### Connect via SSH
 
-You can connect to one of the control plane nodes via SSH with `ssh root@<control-plane-ip> -i /path/to/private_key -o StrictHostKeyChecking=no`. Now you are able to use `kubectl` to manage your workloads right away. By default, the firewall allows SSH connections from everywhere. Best to change that to your own IP by configuring the `firewall_ssh_source` in your kube.tf file (don't worry, you can always change it for deploy if your IP changes).
+You can connect to one of the control plane nodes via SSH with `ssh root@<control-plane-ip> -i /path/to/private_key -o StrictHostKeyChecking=no`. Now you are able to use `kubectl` to manage your workloads right away. By default, the firewall allows SSH connections from everywhere. Best to change that to your own IP by configuring the `firewall_ssh_source` in your kube.tf file. If your IP changes, you can update it and re-apply without needing SSH access; see the details in the [SSH docs](https://github.com/kube-hetzner/terraform-hcloud-kube-hetzner/blob/master/docs/ssh.md#firewall-ssh-source-and-changing-ips).
 
 ### Connect via Kube API
 

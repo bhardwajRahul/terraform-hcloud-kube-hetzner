@@ -209,3 +209,32 @@ resource "null_resource" "autoscaled_nodes_registries" {
     inline = [local.k3s_registries_update_script]
   }
 }
+
+resource "null_resource" "autoscaled_nodes_kubelet_config" {
+  for_each = var.k3s_kubelet_config != "" ? local.autoscaled_nodes : {}
+  triggers = {
+    kubelet_config = var.k3s_kubelet_config
+  }
+
+  connection {
+    user           = "root"
+    private_key    = var.ssh_private_key
+    agent_identity = local.ssh_agent_identity
+    host           = coalesce(each.value.ipv4_address, each.value.ipv6_address, try(one(each.value.network).ip, null))
+    port           = var.ssh_port
+
+    bastion_host        = local.ssh_bastion.bastion_host
+    bastion_port        = local.ssh_bastion.bastion_port
+    bastion_user        = local.ssh_bastion.bastion_user
+    bastion_private_key = local.ssh_bastion.bastion_private_key
+  }
+
+  provisioner "file" {
+    content     = var.k3s_kubelet_config
+    destination = "/tmp/kubelet-config.yaml"
+  }
+
+  provisioner "remote-exec" {
+    inline = [local.k3s_kubelet_config_update_script]
+  }
+}
