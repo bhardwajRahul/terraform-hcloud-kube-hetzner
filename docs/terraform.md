@@ -29,6 +29,14 @@
 |------|--------|---------|
 | <a name="module_agents"></a> [agents](#module\_agents) | ./modules/host | n/a |
 | <a name="module_control_planes"></a> [control\_planes](#module\_control\_planes) | ./modules/host | n/a |
+| <a name="module_values_merger_cert_manager"></a> [values\_merger\_cert\_manager](#module\_values\_merger\_cert\_manager) | ./modules/values_merger | n/a |
+| <a name="module_values_merger_cilium"></a> [values\_merger\_cilium](#module\_values\_merger\_cilium) | ./modules/values_merger | n/a |
+| <a name="module_values_merger_haproxy"></a> [values\_merger\_haproxy](#module\_values\_merger\_haproxy) | ./modules/values_merger | n/a |
+| <a name="module_values_merger_hetzner_ccm"></a> [values\_merger\_hetzner\_ccm](#module\_values\_merger\_hetzner\_ccm) | ./modules/values_merger | n/a |
+| <a name="module_values_merger_longhorn"></a> [values\_merger\_longhorn](#module\_values\_merger\_longhorn) | ./modules/values_merger | n/a |
+| <a name="module_values_merger_nginx"></a> [values\_merger\_nginx](#module\_values\_merger\_nginx) | ./modules/values_merger | n/a |
+| <a name="module_values_merger_rancher"></a> [values\_merger\_rancher](#module\_values\_merger\_rancher) | ./modules/values_merger | n/a |
+| <a name="module_values_merger_traefik"></a> [values\_merger\_traefik](#module\_values\_merger\_traefik) | ./modules/values_merger | n/a |
 
 ### Resources
 
@@ -122,12 +130,14 @@
 | <a name="input_calico_values"></a> [calico\_values](#input\_calico\_values) | Just a stub for a future helm implementation. Now it can be used to replace the calico kustomize patch of the calico manifest. | `string` | `""` | no |
 | <a name="input_calico_version"></a> [calico\_version](#input\_calico\_version) | Version of Calico. See https://github.com/projectcalico/calico/releases for the available versions. | `string` | `null` | no |
 | <a name="input_cert_manager_helmchart_bootstrap"></a> [cert\_manager\_helmchart\_bootstrap](#input\_cert\_manager\_helmchart\_bootstrap) | Whether the HelmChart cert\_manager shall be run on control-plane nodes. | `bool` | `false` | no |
+| <a name="input_cert_manager_merge_values"></a> [cert\_manager\_merge\_values](#input\_cert\_manager\_merge\_values) | Additional Helm values to merge with defaults (or cert\_manager\_values if set). User values take precedence. Requires valid YAML format. | `string` | `""` | no |
 | <a name="input_cert_manager_values"></a> [cert\_manager\_values](#input\_cert\_manager\_values) | Additional helm values file to pass to Cert-Manager as 'valuesContent' at the HelmChart. Defaults are set in locals.tf. For cert-manager versions prior to v1.15.0, you need to set 'installCRDs: true'. | `string` | `""` | no |
 | <a name="input_cert_manager_version"></a> [cert\_manager\_version](#input\_cert\_manager\_version) | Version of cert\_manager. | `string` | `"*"` | no |
 | <a name="input_cilium_egress_gateway_enabled"></a> [cilium\_egress\_gateway\_enabled](#input\_cilium\_egress\_gateway\_enabled) | Enables egress gateway to redirect and SNAT the traffic that leaves the cluster. | `bool` | `false` | no |
 | <a name="input_cilium_hubble_enabled"></a> [cilium\_hubble\_enabled](#input\_cilium\_hubble\_enabled) | Enables Hubble Observability to collect and visualize network traffic. | `bool` | `false` | no |
 | <a name="input_cilium_hubble_metrics_enabled"></a> [cilium\_hubble\_metrics\_enabled](#input\_cilium\_hubble\_metrics\_enabled) | Configures the list of Hubble metrics to collect | `list(string)` | `[]` | no |
 | <a name="input_cilium_ipv4_native_routing_cidr"></a> [cilium\_ipv4\_native\_routing\_cidr](#input\_cilium\_ipv4\_native\_routing\_cidr) | Used when Cilium is configured in native routing mode. The CNI assumes that the underlying network stack will forward packets to this destination without the need to apply SNAT. Default: value of "cluster\_ipv4\_cidr" | `string` | `null` | no |
+| <a name="input_cilium_merge_values"></a> [cilium\_merge\_values](#input\_cilium\_merge\_values) | Additional Helm values to merge with defaults (or cilium\_values if set). User values take precedence. Requires valid YAML format. | `string` | `""` | no |
 | <a name="input_cilium_routing_mode"></a> [cilium\_routing\_mode](#input\_cilium\_routing\_mode) | Set native-routing mode ("native") or tunneling mode ("tunnel"). | `string` | `"tunnel"` | no |
 | <a name="input_cilium_values"></a> [cilium\_values](#input\_cilium\_values) | Additional helm values file to pass to Cilium as 'valuesContent' at the HelmChart. | `string` | `""` | no |
 | <a name="input_cilium_version"></a> [cilium\_version](#input\_cilium\_version) | Version of Cilium. See https://github.com/cilium/cilium/releases for the available versions. | `string` | `"1.17.0"` | no |
@@ -176,12 +186,14 @@
 | <a name="input_firewall_kube_api_source"></a> [firewall\_kube\_api\_source](#input\_firewall\_kube\_api\_source) | Source networks that have Kube API access to the servers. | `list(string)` | <pre>[<br/>  "0.0.0.0/0",<br/>  "::/0"<br/>]</pre> | no |
 | <a name="input_firewall_ssh_source"></a> [firewall\_ssh\_source](#input\_firewall\_ssh\_source) | Source networks that have SSH access to the servers. | `list(string)` | <pre>[<br/>  "0.0.0.0/0",<br/>  "::/0"<br/>]</pre> | no |
 | <a name="input_haproxy_additional_proxy_protocol_ips"></a> [haproxy\_additional\_proxy\_protocol\_ips](#input\_haproxy\_additional\_proxy\_protocol\_ips) | Additional trusted proxy protocol IPs to pass to haproxy. | `list(string)` | `[]` | no |
+| <a name="input_haproxy_merge_values"></a> [haproxy\_merge\_values](#input\_haproxy\_merge\_values) | Additional Helm values to merge with defaults (or haproxy\_values if set). User values take precedence. Requires valid YAML format. | `string` | `""` | no |
 | <a name="input_haproxy_requests_cpu"></a> [haproxy\_requests\_cpu](#input\_haproxy\_requests\_cpu) | Setting for HAProxy controller.resources.requests.cpu | `string` | `"250m"` | no |
 | <a name="input_haproxy_requests_memory"></a> [haproxy\_requests\_memory](#input\_haproxy\_requests\_memory) | Setting for HAProxy controller.resources.requests.memory | `string` | `"400Mi"` | no |
 | <a name="input_haproxy_values"></a> [haproxy\_values](#input\_haproxy\_values) | Helm values file to pass to haproxy as 'valuesContent' at the HelmChart, overriding the default. | `string` | `""` | no |
 | <a name="input_haproxy_version"></a> [haproxy\_version](#input\_haproxy\_version) | Version of HAProxy helm chart. | `string` | `""` | no |
 | <a name="input_hcloud_ssh_key_id"></a> [hcloud\_ssh\_key\_id](#input\_hcloud\_ssh\_key\_id) | If passed, a key already registered within hetzner is used. Otherwise, a new one will be created by the module. | `string` | `null` | no |
 | <a name="input_hcloud_token"></a> [hcloud\_token](#input\_hcloud\_token) | Hetzner Cloud API Token. | `string` | n/a | yes |
+| <a name="input_hetzner_ccm_merge_values"></a> [hetzner\_ccm\_merge\_values](#input\_hetzner\_ccm\_merge\_values) | Additional Helm values to merge with defaults (or hetzner\_ccm\_values if set). User values take precedence. Requires valid YAML format. | `string` | `""` | no |
 | <a name="input_hetzner_ccm_use_helm"></a> [hetzner\_ccm\_use\_helm](#input\_hetzner\_ccm\_use\_helm) | Whether to use the helm chart for the Hetzner CCM or the legacy manifest which is the default. | `bool` | `false` | no |
 | <a name="input_hetzner_ccm_values"></a> [hetzner\_ccm\_values](#input\_hetzner\_ccm\_values) | Additional helm values file to pass to Hetzner Controller Manager as 'valuesContent' at the HelmChart. | `string` | `""` | no |
 | <a name="input_hetzner_ccm_version"></a> [hetzner\_ccm\_version](#input\_hetzner\_ccm\_version) | Version of Kubernetes Cloud Controller Manager for Hetzner Cloud. See https://github.com/hetznercloud/hcloud-cloud-controller-manager/releases for the available versions. | `string` | `null` | no |
@@ -214,10 +226,11 @@
 | <a name="input_load_balancer_health_check_interval"></a> [load\_balancer\_health\_check\_interval](#input\_load\_balancer\_health\_check\_interval) | Specifies the interval at which a health check is performed. Minimum is 3s. | `string` | `"15s"` | no |
 | <a name="input_load_balancer_health_check_retries"></a> [load\_balancer\_health\_check\_retries](#input\_load\_balancer\_health\_check\_retries) | Specifies the number of times a health check is retried before a target is marked as unhealthy. | `number` | `3` | no |
 | <a name="input_load_balancer_health_check_timeout"></a> [load\_balancer\_health\_check\_timeout](#input\_load\_balancer\_health\_check\_timeout) | Specifies the timeout of a single health check. Must not be greater than the health check interval. Minimum is 1s. | `string` | `"10s"` | no |
-| <a name="input_load_balancer_location"></a> [load\_balancer\_location](#input\_load\_balancer\_location) | Default load balancer location. | `string` | `"fsn1"` | no |
+| <a name="input_load_balancer_location"></a> [load\_balancer\_location](#input\_load\_balancer\_location) | Default load balancer location. | `string` | `"nbg1"` | no |
 | <a name="input_load_balancer_type"></a> [load\_balancer\_type](#input\_load\_balancer\_type) | Default load balancer server type. | `string` | `"lb11"` | no |
 | <a name="input_longhorn_fstype"></a> [longhorn\_fstype](#input\_longhorn\_fstype) | The longhorn fstype. | `string` | `"ext4"` | no |
 | <a name="input_longhorn_helmchart_bootstrap"></a> [longhorn\_helmchart\_bootstrap](#input\_longhorn\_helmchart\_bootstrap) | Whether the HelmChart longhorn shall be run on control-plane nodes. | `bool` | `false` | no |
+| <a name="input_longhorn_merge_values"></a> [longhorn\_merge\_values](#input\_longhorn\_merge\_values) | Additional Helm values to merge with defaults (or longhorn\_values if set). User values take precedence. Requires valid YAML format. | `string` | `""` | no |
 | <a name="input_longhorn_namespace"></a> [longhorn\_namespace](#input\_longhorn\_namespace) | Namespace for longhorn deployment, defaults to 'longhorn-system' | `string` | `"longhorn-system"` | no |
 | <a name="input_longhorn_replica_count"></a> [longhorn\_replica\_count](#input\_longhorn\_replica\_count) | Number of replicas per longhorn volume. | `number` | `3` | no |
 | <a name="input_longhorn_repository"></a> [longhorn\_repository](#input\_longhorn\_repository) | By default the official chart which may be incompatible with rancher is used. If you need to fully support rancher switch to https://charts.rancher.io. | `string` | `"https://charts.longhorn.io"` | no |
@@ -229,6 +242,7 @@
 | <a name="input_nat_router_subnet_index"></a> [nat\_router\_subnet\_index](#input\_nat\_router\_subnet\_index) | Subnet index (0-255) for NAT router. Default 200 is safe for most deployments. Must not conflict with control plane (counting down from 255) or agent pools (counting up from 0). | `number` | `200` | no |
 | <a name="input_network_ipv4_cidr"></a> [network\_ipv4\_cidr](#input\_network\_ipv4\_cidr) | The main network cidr that all subnets will be created upon. | `string` | `"10.0.0.0/8"` | no |
 | <a name="input_network_region"></a> [network\_region](#input\_network\_region) | Default region for network. | `string` | `"eu-central"` | no |
+| <a name="input_nginx_merge_values"></a> [nginx\_merge\_values](#input\_nginx\_merge\_values) | Additional Helm values to merge with defaults (or nginx\_values if set). User values take precedence. Requires valid YAML format. | `string` | `""` | no |
 | <a name="input_nginx_values"></a> [nginx\_values](#input\_nginx\_values) | Additional helm values file to pass to nginx as 'valuesContent' at the HelmChart. | `string` | `""` | no |
 | <a name="input_nginx_version"></a> [nginx\_version](#input\_nginx\_version) | Version of Nginx helm chart. See https://github.com/kubernetes/ingress-nginx?tab=readme-ov-file#supported-versions-table for the available versions. | `string` | `""` | no |
 | <a name="input_placement_group_disable"></a> [placement\_group\_disable](#input\_placement\_group\_disable) | Whether to disable placement groups. | `bool` | `false` | no |
@@ -238,6 +252,7 @@
 | <a name="input_rancher_helmchart_bootstrap"></a> [rancher\_helmchart\_bootstrap](#input\_rancher\_helmchart\_bootstrap) | Whether the HelmChart rancher shall be run on control-plane nodes. | `bool` | `false` | no |
 | <a name="input_rancher_hostname"></a> [rancher\_hostname](#input\_rancher\_hostname) | The rancher hostname. | `string` | `""` | no |
 | <a name="input_rancher_install_channel"></a> [rancher\_install\_channel](#input\_rancher\_install\_channel) | The rancher installation channel. | `string` | `"stable"` | no |
+| <a name="input_rancher_merge_values"></a> [rancher\_merge\_values](#input\_rancher\_merge\_values) | Additional Helm values to merge with defaults (or rancher\_values if set). User values take precedence. Requires valid YAML format. | `string` | `""` | no |
 | <a name="input_rancher_registration_manifest_url"></a> [rancher\_registration\_manifest\_url](#input\_rancher\_registration\_manifest\_url) | The url of a rancher registration manifest to apply. (see https://rancher.com/docs/rancher/v2.6/en/cluster-provisioning/registered-clusters/). | `string` | `""` | no |
 | <a name="input_rancher_values"></a> [rancher\_values](#input\_rancher\_values) | Additional helm values file to pass to Rancher as 'valuesContent' at the HelmChart. | `string` | `""` | no |
 | <a name="input_rancher_version"></a> [rancher\_version](#input\_rancher\_version) | Version of rancher. | `string` | `"*"` | no |
@@ -257,6 +272,7 @@
 | <a name="input_traefik_additional_trusted_ips"></a> [traefik\_additional\_trusted\_ips](#input\_traefik\_additional\_trusted\_ips) | Additional Trusted IPs to pass to Traefik. These are the ones that go into the trustedIPs section of the Traefik helm values file. | `list(string)` | `[]` | no |
 | <a name="input_traefik_autoscaling"></a> [traefik\_autoscaling](#input\_traefik\_autoscaling) | Should traefik enable Horizontal Pod Autoscaler. | `bool` | `true` | no |
 | <a name="input_traefik_image_tag"></a> [traefik\_image\_tag](#input\_traefik\_image\_tag) | Traefik image tag. Useful to use the beta version for new features. Example: v3.0.0-beta5 | `string` | `""` | no |
+| <a name="input_traefik_merge_values"></a> [traefik\_merge\_values](#input\_traefik\_merge\_values) | Additional Helm values to merge with defaults (or traefik\_values if set). User values take precedence. Requires valid YAML format. | `string` | `""` | no |
 | <a name="input_traefik_pod_disruption_budget"></a> [traefik\_pod\_disruption\_budget](#input\_traefik\_pod\_disruption\_budget) | Should traefik enable pod disruption budget. Default values are maxUnavailable: 33% and minAvailable: 1. | `bool` | `true` | no |
 | <a name="input_traefik_provider_kubernetes_gateway_enabled"></a> [traefik\_provider\_kubernetes\_gateway\_enabled](#input\_traefik\_provider\_kubernetes\_gateway\_enabled) | Should traefik enable the kubernetes gateway provider. Default is false. | `bool` | `false` | no |
 | <a name="input_traefik_redirect_to_https"></a> [traefik\_redirect\_to\_https](#input\_traefik\_redirect\_to\_https) | Should traefik redirect http traffic to https. | `bool` | `true` | no |

@@ -396,7 +396,7 @@ Example nodepool configuration:
 {
   name        = "egress",
   server_type = "cx23",
-  location    = "fsn1",
+  location    = "nbg1",
   labels = [
     "node.kubernetes.io/role=egress"
   ],

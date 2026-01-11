@@ -27,3 +27,8 @@ terraform {
     }
   }
 }
+
+# Prevent provider picking up `GITHUB_TOKEN` env var and trying to authenticate
+provider "github" {
+  token = ""
+}

@@ -198,7 +198,7 @@ module "kube-hetzner" {
   * **Default (in module, not shown here):** Likely "eu-central".
   * **Purpose:** Specifies the broad geographical region for your Hetzner Cloud private network. All servers and load balancers within the same private network must reside in locations that belong to this network region.
   * **Hetzner Regions:**
-    * `eu-central`: Encompasses European locations like Falkenstein (`fsn1`), Nuremberg (`nbg1`), Helsinki (`hel1`).
+    * `eu-central`: Encompasses European locations like Falkenstein (`fsn1` - currently unavailable due to high demand), Nuremberg (`nbg1`), Helsinki (`hel1`).
     * `us-east`: Encompasses Ashburn, VA (`ash`).
     * `us-west`: Encompasses Hillsboro, OR (`hil`). (Check if supported by module if you intend to use it)
   * **Constraint:** The `location` specified in your `control_plane_nodepools` and `agent_nodepools` *must* be compatible with this `network_region`. You cannot have a server in `fsn1` (Europe) in a network defined for `us-east`.
@@ -302,7 +302,7 @@ The subsequent sections on `control_plane_nodepools` and `agent_nodepools` are e
   # For instance, one is ok (non-HA), two is not ok, and three is ok (becomes HA). It does not matter if they are in the same nodepool or not! So they can be in different locations and of various types.
 
   # Of course, you can choose any number of nodepools you want, with the location you want. The only constraint on the location is that you need to stay in the same network region, Europe, or the US.
-  # For the server type, the minimum instance supported is cx23. The cax11 provides even better value for money if your applications are compatible with arm64; see https://www.hetzner.com/cloud.
+  # For the server type, the minimum instance supported is cx23. If you want to use arm64 use cax11; see https://www.hetzner.com/cloud.
 
   # IMPORTANT: Before you create your cluster, you can do anything you want with the nodepools, but you need at least one of each, control plane and agent.
   # Once the cluster is up and running, you can change nodepool count and even set it to 0 (in the case of the first control-plane nodepool, the minimum is 1).
@@ -325,9 +325,9 @@ The subsequent sections on `control_plane_nodepools` and `agent_nodepools` are e
 
   control_plane_nodepools = [
     {
-      name        = "control-plane-fsn1",
+      name        = "control-plane-nbg1",
       server_type = "cx23",
-      location    = "fsn1",
+      location    = "nbg1",
       labels      = [],
       taints      = [],
       count       = 1
@@ -381,8 +381,10 @@ The subsequent sections on `control_plane_nodepools` and `agent_nodepools` are e
       * Constraints: Lowercase, no special characters except dashes (`-`).
       * Used for naming resources in Hetzner and for Kubernetes node labels/names.
     * **`server_type` (String, Obligatory):**
-      * Hetzner server type (e.g., `cx23`, `cpx22` for x86; `cax11`, `cax21` for ARM).
-      * Minimum for control plane: `cx23` is often cited. More demanding setups (e.g., with Cilium CNI, Rancher) might require more RAM (e.g., `cx31`/`cpx32` or `cax21`/`cax31`).
+      * Hetzner server type:
+        * x86: e.g. `cx23` (2 vCPU, 4GB RAM, 40GB SSD), `cx33` (4 vCPU, 8GB RAM, 80GB SSD), `cx43` (8 vCPU, 16GB RAM, 160GB SSD).
+        * ARM: e.g. `cax11` (2 vCPU, 4GB RAM, 40GB SSD), `cax21` (4 vCPU, 8GB RAM, 80GB SSD).
+      * Minimum for control plane: `cx23` is often cited. More demanding setups (e.g., with Cilium CNI, Rancher) might require more RAM (e.g., `cx33`/`cx43` or `cax21`/`cax31`).
     * **`location` (String, Obligatory):**
       * Hetzner location (e.g., `fsn1`, `nbg1`, `hel1`, `ash`).
       * Must be within the `network_region` defined earlier.
@@ -435,7 +437,7 @@ The example shows three control plane nodepools, each with one node, in differen
     {
       name        = "agent-small",
       server_type = "cx23",
-      location    = "fsn1",
+      location    = "nbg1",
       labels      = [],
       taints      = [],
       count       = 1
@@ -458,7 +460,7 @@ The example shows three control plane nodepools, each with one node, in differen
     {
       name        = "storage",
       server_type = "cx33",
-      location    = "fsn1",
+      location    = "nbg1",
       labels      = [
         "node.kubernetes.io/server-usage=storage" # Example label
       ],
@@ -476,7 +478,7 @@ The example shows three control plane nodepools, each with one node, in differen
     {
       name        = "egress",
       server_type = "cx23",
-      location    = "fsn1",
+      location    = "nbg1",
       labels = [
         "node.kubernetes.io/role=egress"
       ],
@@ -492,7 +494,7 @@ The example shows three control plane nodepools, each with one node, in differen
     {
       name        = "agent-arm-small",
       server_type = "cax11", # ARM server type
-      location    = "fsn1",
+      location    = "nbg1",
       labels      = [],
       taints      = [],
       count       = 1
@@ -503,12 +505,12 @@ The example shows three control plane nodepools, each with one node, in differen
     {
       name        = "agent-arm-medium",
       server_type = "cax21", # Default server_type for this pool
-      location    = "fsn1",  # Default location
+      location    = "nbg1",  # Default location
       labels      = [],
       taints      = [],
       nodes = { # Overrides 'count' and allows per-node customization
         "1" : { # Node identified as "1" within this pool
-          location = "nbg1" # Override location for this specific node
+          location = "fsn1" # Override location for this specific node
           labels = [
             "testing-labels=a1",
           ]
@@ -553,9 +555,9 @@ The example shows three control plane nodepools, each with one node, in differen
         * Each value in the `nodes` map is another map specifying the attributes to override for that particular node.
       * **Example Breakdown (`agent-arm-medium`):**
         * Default `server_type`: `cax21`
-        * Default `location`: `fsn1`
-        * Node `"1"`: Overrides `location` to `nbg1` and adds specific `labels`. It will use the default `cax21` server type.
-        * Node `"20"`: Uses default `location` (`fsn1`) and `server_type` (`cax21`) but has its own specific `labels`.
+        * Default `location`: `nbg1`
+        * Node `"1"`: Overrides `location` to `fsn1` and adds specific `labels`. It will use the default `cax21` server type.
+        * Node `"20"`: Uses default `location` (`nbg1`) and `server_type` (`cax21`) but has its own specific `labels`.
       * **Benefit:** Useful when you need slight variations for a few nodes within a larger, mostly homogeneous pool, without creating many separate small nodepool definitions.
 
 ---
@@ -618,7 +620,7 @@ The example shows three control plane nodepools, each with one node, in differen
 ```terraform
   # * LB location and type, the latter will depend on how much load you want it to handle, see https://www.hetzner.com/cloud/load-balancer
   load_balancer_type     = "lb11"
-  load_balancer_location = "fsn1"
+  load_balancer_location = "nbg1"
 
   # Disable IPv6 for the load balancer, the default is false.
   # load_balancer_disable_ipv6 = true
@@ -705,7 +707,7 @@ The example shows three control plane nodepools, each with one node, in differen
   #  {
   #    name        = "autoscaled-small"
   #    server_type = "cx33"
-  #    location    = "fsn1"
+  #    location    = "nbg1"
   #    min_nodes   = 0
   #    max_nodes   = 5
   #    labels      = { # Note: This is a map, not a list of strings like other labels
@@ -1498,8 +1500,8 @@ Excellent! Let's continue our meticulous dissection.
 * **`use_cluster_name_in_node_name` (Boolean, Optional):**
   * **Default:** `true`.
   * **Purpose:** Controls the naming convention for the Hetzner server instances (and thus Kubernetes node names).
-    * `true`: Node names will be prefixed with the `cluster_name`, e.g., `k3s-cp-fsn1-1`, `mycluster-agent-small-1`.
-    * `false`: Node names will likely just use the nodepool name and an index, e.g., `cp-fsn1-1`, `agent-small-1`.
+    * `true`: Node names will be prefixed with the `cluster_name`, e.g., `k3s-cp-nbg1-1`, `mycluster-agent-small-1`.
+    * `false`: Node names will likely just use the nodepool name and an index, e.g., `cp-nbg1-1`, `agent-small-1`.
   * **Benefit of `true`:** Helps differentiate nodes if you manage multiple clusters within the same Hetzner project.
 
 ---
@@ -1805,7 +1807,7 @@ Excellent! Let's continue our meticulous dissection.
     * `"calico"`: A popular CNI known for its robust network policy enforcement and scalability. Can operate in IP-in-IP, VXLAN, or BGP modes (BGP mode is more for on-prem/bare-metal).
     * `"cilium"`: A powerful CNI based on eBPF. Offers advanced networking features (e.g., efficient load balancing, fine-grained network policies, Hubble observability, service mesh capabilities, transparent encryption, egress gateway).
   * **k3s Integration:** k3s can be started with CNI disabled (`--flannel-backend=none` or similar flags) allowing an external CNI like Calico or Cilium to be installed. This module handles that process.
-  * **Cilium RAM Warning (⚠️):** Cilium, especially with all features enabled, can be more resource-intensive than Flannel. The comment warns that control plane nodes might need more than 2GB of RAM (e.g., `cx23` might be tight, consider `cx31`/`cpx22` or higher) for Cilium pods to run reliably.
+  * **Cilium RAM Warning (⚠️):** Cilium, especially with all features enabled, can be more resource-intensive than Flannel. The comment warns that control plane nodes might need more than 2GB of RAM (e.g., `cx23` might be tight, consider `cx33`/`cx43` or higher) for Cilium pods to run reliably.
   * **Cilium Customization:** The module allows extensive Cilium configuration via the `cilium_values` block (discussed later).
 
 ```terraform
@@ -2115,7 +2117,7 @@ Locked and loaded! Let's continue the detailed exploration.
   # As for the number of replicas, by default it is set to the number of control plane nodes.
   # You can customized all of the above by adding a rancher_values variable see at the end of this file in the advanced section.
   # After the cluster is deployed, you can always use HelmChartConfig definition to tweak the configuration.
-  # IMPORTANT: Rancher's install is quite memory intensive, you will require at least 4GB if RAM, meaning cx21 server type (for your control plane).
+  # IMPORTANT: Rancher's install is quite memory intensive, you will require at least 4GB if RAM, meaning cx23 server type (for your control plane).
   # ALSO, in order for Rancher to successfully deploy, you have to set the "rancher_hostname".
   # enable_rancher = true
 ```
@@ -2130,7 +2132,7 @@ Locked and loaded! Let's continue the detailed exploration.
     * **SSL Configuration:** Rancher offers options for SSL: Rancher-generated self-signed certs (default), Let's Encrypt, or bringing your own certs. The comment suggests the default self-signed cert is easiest if you put a proxy like Cloudflare (with its own valid cert) in front of Rancher.
     * **Replicas:** Rancher deployment replicas default to the number of control plane nodes for HA.
     * **Customization:** Advanced customization via `rancher_values` block (later).
-    * **Resource Requirements (IMPORTANT):** Rancher is resource-intensive. Control plane nodes need significant RAM (at least 4GB, e.g., Hetzner `cx31`/`cpx22` or higher). Insufficient resources will lead to installation failures or instability.
+    * **Resource Requirements (IMPORTANT):** Rancher is resource-intensive. Control plane nodes need significant RAM (at least 4GB, e.g., Hetzner `cx23`/`cx33` or higher). Insufficient resources will lead to installation failures or instability.
     * **`rancher_hostname` (REQUIRED):** You *must* set `rancher_hostname` if `enable_rancher = true`.
 
 ```terraform
@@ -2691,8 +2693,8 @@ The following variables have been added to the `kube-hetzner` module since the i
   # The NAT router will also function as a bastion. This makes securing the cluster easier, as all public traffic passes through a single strongly secured node.
   # It does however also introduce a single point of failure, so if you need high-availability on your egress, you should consider other configurations.
   # nat_router = {
-  #   server_type = "cx31"
-  #   location = "fsn1"
+  #   server_type = "cx33"
+  #   location = "nbg1"
   # }
 ```
 
