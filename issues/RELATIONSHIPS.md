@@ -1,7 +1,7 @@
 # Issue & PR Relationships
 
 Generated: 2026-02-01
-Updated: 2026-02-01 (v2.19.0 minor release merged to master)
+Updated: 2026-02-01 (v2.19.0 batch 2 complete - PRs in staging branch awaiting merge to master)
 
 ---
 
@@ -29,7 +29,7 @@ Updated: 2026-02-01 (v2.19.0 minor release merged to master)
 |---|-------|---------|------------|-----------|
 | [#1988](./1988-stable-nodepool-keys.md) | Stable nodepool keys | Change resource keying | HIGH | MAJOR release |
 | [#1985](./1985-multi-region-multi-network.md) | Multi-region/network | Multiple private networks | VERY HIGH | Future roadmap |
-| [#1972](./1972-smaller-network-sizes.md) | Smaller network sizes | Allow <16 bit networks | MEDIUM | Has PR #1971 |
+| ~~#1972~~ | ~~Smaller network sizes~~ | ~~Allow <16 bit networks~~ | - | ✅ Fixed by #1971 |
 | [#1978](./1978-microos-snapshot-robot.md) | MicroOS for Robot | Packer for dedicated | MEDIUM | Related to #1936 |
 
 ### ❓ Needs More Information
@@ -102,21 +102,26 @@ Updated: 2026-02-01 (v2.19.0 minor release merged to master)
 | [#1924](../prs/1924-user-kustomizations.md) | user_kustomizations-map | **BREAKING CHANGE** - removes variables | MAJOR ONLY |
 | [#1916](../prs/1916-robot-server-terraform.md) | Robot server via Terraform | Adds secrets handling, new infra | Individual review |
 | [#1932](../prs/1932-myipv4-firewall.md) | myipv4 firewall setting | External command execution, new provider | Individual review |
-| [#2015](../prs/2015-nat-router-control-plane-access.md) | NAT-router control plane access | Security-critical: API access routing | Individual review |
-
 ### 🟡 Medium Risk PRs (Careful Review)
 
 | # | Title | Risk Signals | Action |
 |---|-------|--------------|--------|
-| [#1971](../prs/1971-smaller-networks.md) | Networks smaller than 16 bits | Network architecture, unclear offset logic | Individual review |
 | [#1903](../prs/1903-custom-subnet-ranges.md) | Custom subnet ip ranges | Network changes | Individual review |
 | [#1867](../prs/1867-lb-ip-selection.md) | LB IP selection | Load balancer changes | Individual review |
-| [#1760](../prs/1760-tailscale-support.md) | Tailscale support | Network/security feature | Individual review |
-| [#1825](../prs/1825-audit-log.md) | Audit-log feature | Control plane changes | Individual review |
+| [#1760](../prs/1760-tailscale-support.md) | Tailscale support | Deferred - needs generic overlay solution | DEFER |
 | [#1893](../prs/1893-remote-exec-refactor.md) | local-exec to remote-exec | Provisioner changes | Individual review |
 | [#1548](../prs/1548-terraform-data-migration.md) | null_resource to terraform_data | State migration implications | Individual review |
 
-### ✅ Recently Merged (v2.19.0 Minor - 2026-02-01)
+### ✅ Recently Merged (v2.19.0 Minor Batch 2 - 2026-02-01)
+
+| # | Title | Status |
+|---|-------|--------|
+| #1911 | control_plane_endpoint variable | ✅ Merged to staging |
+| #1825 | Audit-log feature | ✅ Merged to staging |
+| #2015 | NAT-router control plane access | ✅ Merged to staging |
+| #1971 | Allow networks smaller than 16 bits | ✅ Merged to staging |
+
+### ✅ Recently Merged (v2.19.0 Minor Batch 1 - 2026-02-01)
 
 | # | Title | Status |
 |---|-------|--------|
@@ -157,15 +162,19 @@ Updated: 2026-02-01 (v2.19.0 minor release merged to master)
 
 ### 🏷️ Minor Release Candidates (Individual Approval Required)
 
-Each needs your decision:
+**v2.19.0 Minor Release - Batch 2 Complete:**
+- ✅ #1911 - control_plane_endpoint (merged)
+- ✅ #2015 - NAT-router CP access (merged)
+- ✅ #1825 - Audit-log feature (merged)
+- ✅ #1971 - Smaller networks (merged, fixes #1972)
+- ⏸️ #1760 - Tailscale support (deferred - needs generic overlay solution)
 
-| # | Title | New Feature | Decision Needed |
-|---|-------|-------------|-----------------|
-| #1911 | control_plane_endpoint | New variable | Want this feature? |
-| #2015 | NAT-router CP access | New capability | Security review first |
-| #1760 | Tailscale support | New feature | Want this feature? |
-| #1825 | Audit-log feature | New feature | Want this feature? |
-| #1971 | Smaller networks | Fixes #1972 | Network arch review |
+Remaining candidates for future minor releases:
+
+| # | Title | New Feature | Status |
+|---|-------|-------------|--------|
+| #1903 | Custom subnet ranges | Network feature | Ready for review |
+| #1867 | LB IP selection | LB feature | Ready for review |
 
 ### 🏷️ Major Release Only (DO NOT MIX WITH REGULAR TRIAGE)
 
@@ -192,26 +201,26 @@ PRs that directly fix issues:
 | #1967 Upgrade window | SUC v0.18.0 | ✅ Fixed | v2.19.0 |
 | #1969 Traefik v34 breaking | #2028 | ✅ Merged | v2.18.6 |
 | #2019 NAT router datacenter | #2021 | ✅ Merged | v2.18.6 |
-| #1972 Smaller networks | #1971 | Needs review | MINOR |
+| #1972 Smaller networks | #1971 | ✅ Merged | v2.19.0 |
 
 ---
 
 ## Topic Clusters
 
-### NAT Router (1 item remaining)
+### NAT Router (Complete for v2.19.0)
 | # | Type | Title | Release | Risk |
 |---|------|-------|---------|------|
-| #2015 | PR | Control plane access via NAT | MINOR | 🟡 |
+| ~~#2015~~ | ~~PR~~ | ~~Control plane access via NAT~~ | ~~v2.19.0~~ | ✅ Merged |
 | ~~#2019~~ | ~~Issue~~ | ~~Infinite replacement cycle~~ | ~~v2.18.6~~ | ✅ Fixed |
 | ~~#2021~~ | ~~PR~~ | ~~Fix datacenter attribute~~ | ~~v2.18.6~~ | ✅ Merged |
 | ~~#2014~~ | ~~PR~~ | ~~Disable root when sudo~~ | ~~Earlier~~ | ✅ Merged |
 
-### Network Architecture (5 items)
+### Network Architecture (3 items remaining)
 | # | Type | Title | Release | Risk |
 |---|------|-------|---------|------|
-| #1972 | Issue | Remove hardcoded network size | - | - |
-| #1988 | Issue | Stable nodepool keys | - | - |
-| #1971 | PR | Smaller networks | MINOR | 🟡 |
+| ~~#1972~~ | ~~Issue~~ | ~~Remove hardcoded network size~~ | ~~v2.19.0~~ | ✅ Fixed by #1971 |
+| #1988 | Issue | Stable nodepool keys | - | MAJOR only |
+| ~~#1971~~ | ~~PR~~ | ~~Smaller networks~~ | ~~v2.19.0~~ | ✅ Merged |
 | #1903 | PR | Custom subnet ranges | MINOR | 🟡 |
 | #1867 | PR | LB IP selection | PATCH | 🟡 |
 
