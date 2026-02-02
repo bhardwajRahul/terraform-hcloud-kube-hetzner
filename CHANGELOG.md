@@ -7,7 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### ⚠️ Upgrade Notes
+### 📋 v2.19.1 Patch Release
+
+This is a patch release for v2.19.0. **If upgrading from v2.18.x**, please review the full release notes below including upgrade notes, new features, and breaking changes.
+
+**Patch fix:**
+- **Audit Policy Bastion Connection** - Fixed missing bastion SSH settings in `audit_policy` provisioner, enabling audit policy deployment for NAT router / private network setups (#2042) - thanks @CounterClops
+
+---
+
+### ⚠️ Upgrade Notes (from v2.18.x)
 
 #### NAT Router Users (created before v2.19.0)
 
@@ -59,6 +68,7 @@ If you created a NAT router **before v2.19.0** (when the hcloud provider used th
 
 ### 🐛 Bug Fixes
 
+- **Audit Policy Bastion Connection** _(v2.19.1)_ - Fixed missing bastion SSH settings in `audit_policy` provisioner, enabling audit policy deployment for NAT router / private network setups (#2042)
 - **Traefik v34 Compatibility** - Fixed HTTP to HTTPS redirection config for Traefik Helm Chart v34+ (#2028)
 - **NAT Router IP Drift** - Fixed infinite replacement cycle by migrating from deprecated `datacenter` to `location` (#2021)
 - **SELinux YAML Parsing** - Fixed cloud-init SCHEMA_ERROR caused by improper YAML formatting of SELinux policy
@@ -76,13 +86,9 @@ If you created a NAT router **before v2.19.0** (when the hcloud provider used th
 
 ---
 
-## [2.18.6] - 2026-02-01
+## [2.19.0] - 2026-02-01
 
-### 🐛 Bug Fixes
-
-- Fixed Traefik v34 chart configuration compatibility (#2028)
-- Fixed NAT router datacenter attribute deprecation warning (#2021)
-- Fixed kured_version null value handling (#2032)
+_Initial release of the v2.19 series. See above for full feature list._
 
 ---
 
