@@ -1300,8 +1300,8 @@ cloudinit_write_files_common = <<EOT
 
 # Create the kube_hetzner_selinux.te file, that allows in SELinux to not interfere with various needed services
 - path: /root/kube_hetzner_selinux.te
-  content: |
-${indent(4, file("${path.module}/templates/kube-hetzner-selinux.te"))}
+  encoding: base64
+  content: ${base64encode(file("${path.module}/templates/kube-hetzner-selinux.te"))}
 
 # Create the k3s registries file if needed
 %{if var.k3s_registries != ""}
