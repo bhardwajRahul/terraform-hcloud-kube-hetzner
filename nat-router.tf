@@ -1,11 +1,11 @@
 locals {
-  nat_gateway_ip = cidrhost(hcloud_network_subnet.nat_router[0].ip_range, 1)
+ nat_gateway_ip = var.nat_router != null ? cidrhost(hcloud_network_subnet.nat_router[0].ip_range, 1) : ""
 
-  nat_router_ip = var.nat_router.enable_redundancy ? {
-    0 = var.nat_router != null ? cidrhost(hcloud_network_subnet.nat_router[0].ip_range, 2) : "",
-    1 = var.nat_router != null ? cidrhost(hcloud_network_subnet.nat_router[0].ip_range, 3) : ""
+  nat_router_ip = var.nat_router != null && var.nat_router.enable_redundancy ? {
+    0 = cidrhost(hcloud_network_subnet.nat_router[0].ip_range, 2),
+    1 = cidrhost(hcloud_network_subnet.nat_router[0].ip_range, 3)
   } : {
-    0 = var.nat_router != null ? local.nat_gateway_ip : "",
+    0 = local.nat_gateway_ip
   }
 
   nat_router_name_basename = "nat-router"
