@@ -143,30 +143,55 @@ write_files:
     permissions: '0700'
     content: |
       #!/bin/bash
+      set -euo pipefail
 
-      HCLOUD_TOKEN="${ hcloud_token }"
+      # Load environment variables, noticable HCLOUD_TOKEN
+      ENV_FILE="/etc/keepalived/hcloud.env"
+      if [ -f "$ENV_FILE" ]
+      then
+        source "$ENV_FILE"
+      else
+        exit 1
+      fi
+
       NET_ID="${ network_id }"
       VIP="${ vip }"
       PEER_IP="${ peer_private_ip }"
 
       # Get own hcloud server id by calling metadata service
-      MY_ID=$(curl -s http://169.254.169.254/hetzner/v1/metadata/instance-id)
+      MY_ID=$(curl -f -s http://169.254.169.254/hetzner/v1/metadata/instance-id)
+
+      if [ -z "$MY_ID" ]
+      then
+        exit 1
+      fi
 
       # Get peer id by server list filtered by role=nat_router and provided peer IP
-      PEER_ID=$(curl -s -H "Authorization: Bearer $HCLOUD_TOKEN" \
+      PEER_ID=$(curl -f -s -H "Authorization: Bearer $HCLOUD_TOKEN" \
         "https://api.hetzner.cloud/v1/servers?label_selector=role=nat_router" | \
         jq -r ".servers[] | select(.private_net[].ip == \"$PEER_IP\") | .id")
 
+      if [ -z "$PEER_ID" ]
+      then
+        exit 1
+      fi
+
       # Remove from Peer
-      curl -s -X POST "https://api.hetzner.cloud/v1/servers/$PEER_ID/actions/change_alias_ips" \
+      curl -f -s -X POST "https://api.hetzner.cloud/v1/servers/$PEER_ID/actions/change_alias_ips" \
         -H "Authorization: Bearer $HCLOUD_TOKEN" -H "Content-Type: application/json" \
         -d "{\"network\": $NET_ID, \"alias_ips\": []}"
 
       # Assign to Me
-      curl -s -X POST "https://api.hetzner.cloud/v1/servers/$MY_ID/actions/change_alias_ips" \
+      curl -f -s -X POST "https://api.hetzner.cloud/v1/servers/$MY_ID/actions/change_alias_ips" \
         -H "Authorization: Bearer $HCLOUD_TOKEN" -H "Content-Type: application/json" \
         -d "{\"network\": $NET_ID, \"alias_ips\": [\"$VIP\"]}"
 
+  - path: /etc/keepalived/hcloud.env
+    owner: keepalived_script:keepalived_script
+    permissions: '0600'
+    defer: true
+    content: |
+      export HCLOUD_TOKEN="${ hcloud_token }"
 %{ endif ~}
 
 users:
