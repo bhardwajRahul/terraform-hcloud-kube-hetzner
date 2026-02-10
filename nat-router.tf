@@ -127,6 +127,7 @@ resource "hcloud_server" "nat_router" {
   network {
     network_id = data.hcloud_network.k3s.id
     ip         = local.nat_router_ip[count.index]
+    alias_ips  = []
   }
 
   labels = merge(
@@ -135,6 +136,10 @@ resource "hcloud_server" "nat_router" {
     },
     try(var.nat_router.labels, {}),
   )
+
+  lifecycle {
+    ignore_changes = [network] # Ignore the additional alias ip added by keepalived
+  }
 
 }
 
