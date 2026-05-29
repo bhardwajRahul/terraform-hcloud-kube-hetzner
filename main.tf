@@ -21,11 +21,11 @@ locals {
   ]) > 0
 
   microos_x86_snapshot_id = var.microos_x86_snapshot_id != "" ? var.microos_x86_snapshot_id : (
-    local.uses_microos_x86_snapshot ? data.hcloud_image.microos_x86_snapshot[0].id : ""
+    join("", data.hcloud_image.microos_x86_snapshot[*].id)
   )
 
   microos_arm_snapshot_id = var.microos_arm_snapshot_id != "" ? var.microos_arm_snapshot_id : (
-    local.uses_microos_arm_snapshot ? data.hcloud_image.microos_arm_snapshot[0].id : ""
+    join("", data.hcloud_image.microos_arm_snapshot[*].id)
   )
 }
 
