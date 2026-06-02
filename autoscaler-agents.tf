@@ -104,6 +104,7 @@ locals {
         ipv4_subnet_id                             = local.autoscaler_network_id_by_key[network_key]
         snapshot_id                                = local.first_nodepool_snapshot_id
         cluster_config                             = base64encode(jsonencode(local.desired_cluster_config_by_network[network_key]))
+        cluster_config_sha256                      = sha256(jsonencode(local.desired_cluster_config_by_network[network_key]))
         firewall_id                                = hcloud_firewall.k3s.id
         cluster_name                               = local.cluster_prefix
         node_pools                                 = local.autoscaler_nodepools_by_network[network_key]
@@ -150,7 +151,7 @@ resource "terraform_data" "configure_autoscaler" {
   # Create/Apply the definition
   provisioner "remote-exec" {
     inline = concat(
-      ["${local.kubectl_cli} apply -f /tmp/autoscaler.yaml"],
+      ["${local.kubectl_cli} apply --server-side --field-manager=kube-hetzner --force-conflicts -f /tmp/autoscaler.yaml"],
       [
         for autoscaler_name in values(local.autoscaler_name_by_network) :
         "${local.kubectl_cli} -n kube-system wait --for=condition=available --timeout=300s deployment/${autoscaler_name}"
@@ -162,6 +163,13 @@ resource "terraform_data" "configure_autoscaler" {
     terraform_data.kustomization,
     terraform_data.rke2_kustomization
   ]
+
+  lifecycle {
+    precondition {
+      condition     = try(provider::semvers::compare(trimprefix(var.cluster_autoscaler_version, "v"), "1.33.0"), -1) >= 0
+      error_message = "autoscaler_nodepools require cluster_autoscaler_version v1.33.0 or newer because kube-hetzner mounts the Hetzner cluster config through HCLOUD_CLUSTER_CONFIG_FILE."
+    }
+  }
 }
 moved {
   from = null_resource.configure_autoscaler

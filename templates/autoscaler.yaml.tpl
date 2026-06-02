@@ -53,6 +53,9 @@ rules:
   - apiGroups: ["storage.k8s.io"]
     resources: ["storageclasses", "csinodes", "csistoragecapacities", "csidrivers", "volumeattachments"]
     verbs: ["watch", "list", "get"]
+  - apiGroups: ["resource.k8s.io"]
+    resources: ["deviceclasses", "resourceclaims", "resourceslices"]
+    verbs: ["watch", "list", "get"]
   - apiGroups: ["batch", "extensions"]
     resources: ["jobs"]
     verbs: ["get", "list", "watch", "patch"]
@@ -136,6 +139,19 @@ spec:
       nodePort: ${metrics_node_port}
 
 ---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ${autoscaler_name}-config
+  namespace: kube-system
+  labels:
+    k8s-addon: cluster-autoscaler.addons.k8s.io
+    k8s-app: ${autoscaler_name}
+type: Opaque
+data:
+  config.json: ${cluster_config}
+
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -155,6 +171,7 @@ spec:
       annotations:
         prometheus.io/scrape: 'true'
         prometheus.io/port: '8085'
+        checksum/config: '${cluster_config_sha256}'
     spec:
       serviceAccountName: ${autoscaler_name}
       tolerations:
@@ -210,8 +227,8 @@ ${indent(8, yamlencode(cluster_autoscaler_tolerations))}
                   key: token
           - name: HCLOUD_CLOUD_INIT
             value: ${cloudinit_config}
-          - name: HCLOUD_CLUSTER_CONFIG
-            value: ${cluster_config}
+          - name: HCLOUD_CLUSTER_CONFIG_FILE
+            value: /etc/hetzner-autoscaler/config.json
           - name: HCLOUD_SSH_KEY
             value: '${ssh_key}'
           - name: HCLOUD_IMAGE
@@ -228,4 +245,15 @@ ${indent(8, yamlencode(cluster_autoscaler_tolerations))}
           - name: HCLOUD_SERVER_CREATION_TIMEOUT
             value: '${cluster_autoscaler_server_creation_timeout}'
           %{~ endif ~}
+          volumeMounts:
+            - name: cluster-config
+              mountPath: /etc/hetzner-autoscaler
+              readOnly: true
           imagePullPolicy: "Always"
+      volumes:
+        - name: cluster-config
+          secret:
+            secretName: ${autoscaler_name}-config
+            items:
+              - key: config.json
+                path: config.json

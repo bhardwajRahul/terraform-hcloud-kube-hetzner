@@ -811,6 +811,7 @@ module "kube-hetzner" {
 
   # Default is "traefik".
   # If you want to enable the Nginx (https://kubernetes.github.io/ingress-nginx/) or HAProxy ingress controller instead of Traefik, you can set this to "nginx" or "haproxy".
+  # The "nginx" option installs the community Kubernetes ingress-nginx controller, not F5 NGINX Ingress Controller. Use ingress_controller = "none" when installing F5 independently.
   # By the default we load optimal Traefik, Nginx or HAProxy ingress controller config for Hetzner, however you may need to tweak it to your needs, so to do,
   # we allow you to add a traefik_values, nginx_values or haproxy_values, see towards the end of this file in the advanced section.
   # You can also use *_merge_values to overlay defaults (or the *_values file if set).

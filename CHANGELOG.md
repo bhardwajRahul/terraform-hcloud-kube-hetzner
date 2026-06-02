@@ -63,6 +63,10 @@ This is the v3 major-release line. Before upgrading from any `v2.x` release:
 
 ### 🐛 Bug Fixes
 
+- **Control Plane LB Health Check** - Kept the control-plane load balancer health check on HTTP protocol with TLS enabled for the Kubernetes `/readyz` endpoint, avoiding invalid Hetzner `https` protocol validation failures (#2188, #2199, #2200, #2205).
+- **Autoscaler Large Configs and DRA RBAC** - Cluster Autoscaler now reads the generated Hetzner cluster config from a Secret-backed file, uses server-side apply for its manifest, and has read-only RBAC for Kubernetes Dynamic Resource Allocation resources (#2194, #2195, #2202).
+- **Kured on Tainted Nodes** - Added a universal toleration to Kured so OS reboot management still runs on tainted nodes (#2196).
+- **Subnet Validation Contract** - Kept NAT router and vSwitch subnet-index upper bounds conditional on those features being enabled, preserving small `subnet_count` validation compatibility while still failing invalid enabled configurations (#2197).
 - **External Manifest Fetch Resilience** - Added retry blocks to GitHub and public-IP HTTP data sources so transient TLS handshake timeouts do not fail plans, applies, or destroys.
 - **Autoscaler CA Root Loading** - Removed the `/etc/ssl/certs` hostPath mount from Cluster Autoscaler so RKE2/Leap Micro clusters use the image's bundled CA roots instead of hitting host certificate directory permission failures.
 - **Terraform 1.15 Validation Compatibility** - Moved cross-variable and local-dependent module contract checks from input-variable validation blocks into a hard `terraform_data.validation_contract` precondition surface, preserving plan-time failures while allowing Terraform 1.15.0 to initialize and validate the module.

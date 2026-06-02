@@ -410,8 +410,8 @@ resource "terraform_data" "validation_contract" {
 
     # Moved from variable "nat_router_subnet_index" validation near variables.tf:1004.
     precondition {
-      condition     = var.nat_router_subnet_index >= 0 && var.nat_router_subnet_index < var.subnet_count
-      error_message = "NAT router subnet index must be between 0 and subnet_count."
+      condition     = var.nat_router_subnet_index >= 0 && (var.nat_router == null || var.nat_router_subnet_index < var.subnet_count)
+      error_message = "NAT router subnet index must be zero or greater, and lower than subnet_count when nat_router is enabled."
     }
 
     # Moved from variable "nat_router_subnet_index" validation near variables.tf:1009.
@@ -434,8 +434,8 @@ resource "terraform_data" "validation_contract" {
 
     # Moved from variable "vswitch_subnet_index" validation near variables.tf:1031.
     precondition {
-      condition     = var.vswitch_subnet_index >= 0 && var.vswitch_subnet_index < var.subnet_count
-      error_message = "vSwitch subnet index must be between 0 and subnet_count."
+      condition     = var.vswitch_subnet_index >= 0 && (var.vswitch_id == null || var.vswitch_subnet_index < var.subnet_count)
+      error_message = "vSwitch subnet index must be zero or greater, and lower than subnet_count when vswitch_id is set."
     }
 
     # Moved from variable "vswitch_subnet_index" validation near variables.tf:1036.

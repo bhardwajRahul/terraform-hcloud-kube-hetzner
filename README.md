@@ -449,6 +449,8 @@ Enable with `autoscaler_nodepools`. Powered by [Cluster Autoscaler](https://gith
 > ⚠️ Autoscaled nodes use a snapshot from the initial control plane. Ensure disk sizes match.
 > Longhorn storage should stay on static agent nodepools. Autoscaled Longhorn volumes require a write-capable Hetzner token in node user-data and leave detached volumes behind on scale-down.
 
+Cluster Autoscaler will not scale down nodes that run pods with local storage unless explicitly configured to do so. For disposable local data, add `--skip-nodes-with-local-storage=false` to `cluster_autoscaler_extra_args` or annotate individual pods with `cluster-autoscaler.kubernetes.io/safe-to-evict: "true"`.
+
 ---
 
 ## 🛡️ High Availability
