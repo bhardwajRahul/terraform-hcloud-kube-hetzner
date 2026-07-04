@@ -140,6 +140,10 @@ This is the v3 major-release line. Before upgrading from any `v2.x` release:
 
 ---
 
+
+
+---
+
 ## [2.20.0] - 2026-06-02
 
 ### ⚠️ Upgrade Notes

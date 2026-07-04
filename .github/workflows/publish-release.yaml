@@ -90,11 +90,11 @@ jobs:
           )
 
           COMMIT_AUTHORS=$(git log "${RANGE}" --format='%an' | sed '/^$/d' | sort -u)
+          # Parse Co-authored-by via git's trailer parser: grepping raw bodies
+          # matches prose that merely mentions the trailer and emits garbage.
           COAUTHORS=$(
-            git log "${RANGE}" --format='%b' \
-              | grep -i "co-authored-by:" \
-              | sed -E 's/.*:[[:space:]]*//' \
-              | sed -E 's/[[:space:]]*<.*//' \
+            git log "${RANGE}" --format='%(trailers:key=Co-authored-by,valueonly=true)' \
+              | sed 's/ <[^>]*>$//' \
               | sed '/^$/d' \
               | sort -u || true
           )
