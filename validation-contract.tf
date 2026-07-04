@@ -1102,3 +1102,32 @@ resource "terraform_data" "validation_contract" {
     }
   }
 }
+
+# Guard: every rendered/merged Helm values document must be parseable YAML.
+# A single mis-indented line in a values template otherwise ships as a
+# HelmChart valuesContent that crash-loops the helm-install job at runtime
+# (seen live with cilium routingMode indentation). Failing at plan time is
+# strictly better.
+resource "terraform_data" "helm_values_yaml_contract" {
+  input = true
+
+  lifecycle {
+    precondition {
+      condition = alltrue([
+        for name, doc in {
+          cilium         = local.cilium_values
+          longhorn       = local.longhorn_values
+          csi_driver_smb = local.csi_driver_smb_values
+          hetzner_csi    = local.hetzner_csi_values
+          nginx          = local.nginx_values
+          hetzner_ccm    = local.hetzner_ccm_values
+          haproxy        = local.haproxy_values
+          traefik        = local.traefik_values
+          rancher        = local.rancher_values
+          cert_manager   = local.cert_manager_values
+        } : trimspace(doc) == "" || can(yamldecode(doc))
+      ])
+      error_message = "One of the rendered Helm values documents (cilium, longhorn, csi_driver_smb, hetzner_csi, nginx, hetzner_ccm, haproxy, traefik, rancher, cert_manager) is not valid YAML. Inspect the corresponding *_values local / *_merge_values input."
+    }
+  }
+}

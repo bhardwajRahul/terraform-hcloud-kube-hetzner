@@ -1989,8 +1989,8 @@ kubeProxyReplacementHealthzBindAddr: "0.0.0.0:10256"
 k8sServiceHost: "127.0.0.1"
 k8sServicePort: "${local.kubernetes_distribution == "rke2" ? tostring(var.kubernetes_api_port) : "6444"}"
 
-  # Set Tunnel Mode or Native Routing Mode. Cross-network transports force tunnel mode.
-  routingMode: "${local.cilium_routing_mode_effective}"
+# Set Tunnel Mode or Native Routing Mode. Cross-network transports force tunnel mode.
+routingMode: "${local.cilium_routing_mode_effective}"
 %{if local.cilium_routing_mode_effective == "native"~}
 %{if local.cluster_has_ipv4~}
 # Set the native routable CIDR
