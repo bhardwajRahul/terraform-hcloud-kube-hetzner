@@ -35,3 +35,43 @@ If your IP changes, you are not locked out permanently:
 - Run `terraform plan` and `terraform apply`.
 
 Terraform updates the firewall through the Hetzner API, so SSH access is not required to make this change. If you need access immediately, you can temporarily add a wider CIDR (for example `0.0.0.0/0` and/or `::/0`), apply, and then tighten it again once you are connected. A static IP or a VPN with a fixed egress IP also avoids future changes.
+
+## Ephemeral SSH access (open only during apply, closed at rest)
+
+If you want the firewall to expose **no SSH port at all** day-to-day, and open it only while Terraform provisions or upgrades nodes, use a two-apply wrapper around `firewall_ssh_source` instead of a module flag. A single-apply toggle cannot exist cleanly in the declarative model: the firewall ruleset is one resource applied once per run, provisioning itself needs SSH mid-apply, and any imperative rule-stripping step would leave a perpetual `terraform plan` diff and fail open if an apply is interrupted (see the discussion in issue #2224).
+
+The wrapper pattern — open to your current IP, do the work, close:
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+MY_IP="$(curl -4 -s https://ifconfig.me)/32"
+
+# 1. Open SSH to your current IP only, for the duration of the run
+terraform apply -auto-approve -var "firewall_ssh_source=[\"$MY_IP\"]"
+
+# 2. Close SSH again (empty list = no SSH rule at the firewall)
+terraform apply -auto-approve -var 'firewall_ssh_source=[]'
+```
+
+Declare the variable pass-through in your `kube.tf`:
+
+```tf
+variable "firewall_ssh_source" {
+  type    = list(string)
+  default = [] # closed at rest
+}
+
+module "kube-hetzner" {
+  # ...
+  firewall_ssh_source = var.firewall_ssh_source
+}
+```
+
+Notes:
+
+- Both applies produce clean plans — there is no perpetual drift, because the firewall always matches the last-applied variable value.
+- If a run is interrupted between the two applies, SSH stays open **only to your own IP**; re-run step 2 (or use `hcloud firewall` from the CLI) to close it.
+- In CI, replace `MY_IP` with the runner's egress IP and run step 2 in an `always()`/`trap`-style cleanup step so the close happens even on failure.
+- Kubernetes API access is separate (`firewall_kube_api_source`); this pattern only concerns the SSH rule.
