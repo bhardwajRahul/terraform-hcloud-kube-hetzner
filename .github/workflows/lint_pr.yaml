@@ -26,7 +26,7 @@ jobs:
     name: Scan terraform files with tfsec
     steps:
       - name: Clone repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Run tfsec with reviewdog output on the PR
         uses: reviewdog/action-tfsec@v1.30.0
@@ -48,7 +48,7 @@ jobs:
           - 1.15.0
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -82,7 +82,7 @@ jobs:
     name: Check formatting of terraform files
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: terraform fmt
         uses: dflook/terraform-fmt-check@v2.2.3

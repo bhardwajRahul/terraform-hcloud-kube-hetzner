@@ -376,6 +376,46 @@ gh pr review <num> --comment --body "..."
 gh pr merge <num> --squash --delete-branch
 ```
 
+## Preserve Contributor Credit When Merging (SUPER IMPORTANT)
+
+Original PR submitters must remain visible as commit authors in `master` history — that is what feeds both the GitHub repo contributors graph and the auto-generated contributors list in each release (`publish-release.yaml`). Credit where credit is due, always.
+
+Rules by situation:
+
+1. **PR contains only the contributor's commits** → `--squash` is safe: GitHub sets the squash commit's *author* to the PR author (we are only the committer). This is the default path.
+2. **We pushed fix-up commits on top of their branch** → do NOT squash (squashing collapses authorship to a single author and can erase them). Use a merge commit (`gh pr merge --merge`) or rebase-merge (`--rebase`) so their original commits survive in history with their authorship intact.
+3. **We rework their contribution in our own branch/PR** (conflict resolution, adopting a patch from an issue, porting between master/staging) → `git cherry-pick` their original commit(s) FIRST so the `Author:` field stays theirs, then add our fixes as separate commits. If cherry-pick is impossible (e.g. the patch came as a diff/snippet in an issue), add a `Co-authored-by: Name <email>` trailer to our commit and credit them by handle in the commit message and changelog entry.
+4. **Never** amend or reauthor a contributor's commit in a way that removes them from the history.
+
+Before merging, sanity-check: `git log --format='%an %ae' <range>` on what will land in master — the contributor's name must appear. After a release, verify they show up in the generated contributors section of the release body.
+
+## Integrate-and-Fix Flow (DEFAULT for good-but-imperfect PRs)
+
+When a PR is **good and valuable, even if not perfect**, do NOT bounce it back with change requests and wait for the contributor. The old human-review back-and-forth is dead. We integrate and fix it ourselves:
+
+```bash
+# 1. Fetch their work and create an integration branch off the PR's target
+git fetch origin pull/<num>/head:pr-<num>
+git checkout -b integrate/pr-<num> origin/<target>          # target = master or staging
+
+# 2. Merge THEIR branch first (preserves their commits + authorship — see credit rules)
+git merge pr-<num>                                          # resolve conflicts here if any
+
+# 3. Add OUR fixes as separate commits on top (validation, triggers, docs, changelog, ...)
+# 4. Verify: terraform fmt / validate / plan (and the structural plan-diff proxy when relevant)
+
+# 5. Merge the integration branch into the target with a MERGE COMMIT (never squash here —
+#    squashing would erase their authorship now that our commits are mixed in)
+git checkout <target> && git pull origin <target>
+git merge --no-ff integrate/pr-<num> -m "feat/fix: <title> (#<num>) + maintainer fixes"
+git push origin <target>
+```
+
+Notes:
+- GitHub automatically marks the original PR **merged** once its head commits reach the target branch — the contributor gets full PR credit and appears in history/contributors.
+- Comment on the PR describing what we fixed on top, so the contributor learns from the delta instead of a review ping-pong.
+- Reserve "request changes and wait" for PRs that are: not valuable, architecturally wrong-direction (fixing = rewriting), security-suspect, or from the malicious-pattern category in CLAUDE.md. Wrong-direction PRs may still donate salvageable commits via cherry-pick (credit rules case 3).
+
 ## Never Merge Directly to Master
 
 All PRs go through staging branches first:
