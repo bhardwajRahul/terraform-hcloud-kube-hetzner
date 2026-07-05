@@ -200,4 +200,8 @@ jobs:
             exit 0
           fi
 
-          ${{ matrix.engine }} -chdir="${TEST_DIR}" destroy -auto-approve -var="cluster_name=${TEST_CLUSTER_NAME}"
+          ${{ matrix.engine }} -chdir="${TEST_DIR}" destroy -auto-approve -var="cluster_name=${TEST_CLUSTER_NAME}" || {
+            echo "First destroy failed (known CCM/terraform LB teardown race; see plans/011) - retrying once after 60s"
+            sleep 60
+            ${{ matrix.engine }} -chdir="${TEST_DIR}" destroy -auto-approve -var="cluster_name=${TEST_CLUSTER_NAME}"
+          }

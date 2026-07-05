@@ -25,6 +25,7 @@ Dependency edges: 007→001, 008→001, 008→004 (same data sources — 004 lan
 | 007 | Shell-safe user inputs | DONE |
 | 008 | Deterministic addon versions | DONE |
 | 009 | CI orphan sweeper | DONE |
+| 011 | Ingress LB single ownership (design) | TODO |
 | 010 | Stable node keys (design spike) | DONE — plans/010-report.md |
 
 ## Considered and rejected / deferred (do not re-audit)

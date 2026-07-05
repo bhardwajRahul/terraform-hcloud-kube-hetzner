@@ -1851,12 +1851,12 @@ for service_name in $INGRESS_SERVICE_NAMES; do
   $KUBECTL -n "$INGRESS_NAMESPACE" wait --for=delete "service/$service_name" --timeout=120s || true
 done
 
-# Settle window: after the Service is gone the CCM detaches/deletes the adopted
-# Hetzner LB asynchronously. Without this pause, terraform's own LB/network
-# detach races the CCM's and the API returns resource_already_detaching
-# (observed in CI destroy steps). Bounded and fail-open by design.
-sleep 45
-
+# NOTE deliberately NO settle wait here: once the Service is gone the CCM
+# deletes the adopted LB asynchronously. Waiting for that deletion makes
+# terraform's own hcloud_load_balancer_network detach fail hard (422
+# resource not found, observed 6/6 in CI); not waiting leaves only a benign
+# already-detaching race that an idempotent destroy retry absorbs. The real
+# fix is single-ownership of the ingress LB - see plans/011.
 exit 0
 KH_INGRESS_LB_CLEANUP
 
