@@ -1522,8 +1522,8 @@ module "kube-hetzner" {
   # We advise you to use the default values, and only change them if you know what you are doing!
 
   # You can inline the values here in heredoc-style (as the examples below with the <<-EOT to EOT). Please note that the indentation inside the EOT is important.
-  # Or you can create a thepackage-values.yaml file with the content and use it here with the following syntax:
-  # thepackage_values = file("thepackage-values.yaml")
+  # Or you can create a component values file with the content and use it with a concrete variable:
+  # cilium_values = file("cilium-values.yaml")
   # _values fully replaces the chart values used by the module. _merge_values keeps the defaults (or *_values if set) and overlays your YAML on top.
   # Prefer *_merge_values as the standard customization API for incremental, upgrade-safe tuning.
 

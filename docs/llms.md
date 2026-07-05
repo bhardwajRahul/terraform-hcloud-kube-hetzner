@@ -2565,8 +2565,8 @@ This section introduces the mechanism for providing detailed, custom Helm chart 
   # We advise you to use the default values, and only change them if you know what you are doing!
 
   # You can inline the values here in heredoc-style (as the examples below with the <<-EOT to EOT). Please note that the indentation inside the EOT is important.
-  # Or you can create a thepackage-values.yaml file with the content and use it here with the following syntax:
-  # thepackage_values = file("thepackage-values.yaml")
+  # Or you can create a component values file with the content and use it with a concrete variable:
+  # cilium_values = file("cilium-values.yaml")
 
   # Cilium, all Cilium helm values can be found at https://github.com/cilium/cilium/blob/master/install/kubernetes/cilium/values.yaml
   # Be careful when maintaining your own cilium_values, as the choice of available settings depends on the Cilium version used. See also the cilium_version setting to fix a specific version.

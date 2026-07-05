@@ -56,6 +56,16 @@ Complete this before applying a v3 plan:
   while v3 defaults to `stable` and automatic Kubernetes upgrades still default
   on. Pin `k3s_version`, set `k3s_channel = "v1.33"` intentionally, or accept
   following `stable`.
+- The addon version policy is explicit: unset addon version variables use
+  kube-hetzner's reviewed deterministic defaults; set concrete versions to pin,
+  or set `latest` only when upstream floating behavior is intentional.
+- Out-of-band root SSH keys are accounted for: v3 preserves unknown
+  `/root/.ssh/authorized_keys` lines by default while revoking removed
+  module-managed keys; set `ssh_authorized_keys_exclusive = true` only when
+  strict replacement with exactly module-managed keys is intended.
+- If `rancher_registration_manifest_url` was configured, rotate the Rancher
+  registration token because older kustomization backup files may have written
+  that credential to disk.
 
 ## Support levels
 
@@ -93,11 +103,13 @@ v3 requires:
 - Terraform `>= 1.10.1` or OpenTofu `>= 1.10.1`
 - hcloud provider `>= 1.62.0`
 
-Terraform 1.9+ cross-object variable validation is used heavily in v3, and the
-module requires a runtime compatible with Terraform/OpenTofu 1.10.1 or newer.
+v3 keeps self-contained input rules in variable validation blocks, but all
+cross-variable and local-dependent rules are enforced by the
+`terraform_data.validation_contract` precondition surface during `terraform plan`.
+The module requires a runtime compatible with Terraform/OpenTofu 1.10.1 or newer.
 On Homebrew, install OpenTofu with `brew install opentofu`. OpenTofu users
 should verify behavior with `tofu init -upgrade`, `tofu validate`, and
-`tofu plan` before applying.
+`tofu plan` before applying; full contract evaluation happens at plan time.
 
 If you validate the module checkout itself with both Terraform and OpenTofu,
 run OpenTofu in a temporary copy so its ignored lock file and provider cache do
@@ -319,8 +331,16 @@ terraform init -upgrade
 terraform validate
 ```
 
-Fix validation failures before planning. v3 intentionally uses variable
-validation as the first safety layer.
+Fix `terraform validate` failures before planning, but do not treat `validate`
+as the full v3 contract. v3 intentionally keeps self-contained rules in variable
+validation and enforces every cross-variable rule through
+`terraform_data.validation_contract` preconditions during `terraform plan`.
+
+The first v3 apply is not purely local Terraform bookkeeping. It SSHes to
+existing control-plane and agent nodes for `terraform_data.initial_readiness`,
+reconciles `/root/.ssh/authorized_keys`, may create validation-only
+`terraform_data` state, and may rerun the k3s/RKE2 kustomization once as trigger
+state and rendered addon payloads migrate.
 
 ## Phase 6: create and inspect a plan
 

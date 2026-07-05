@@ -119,7 +119,7 @@ Only apply after reviewing all planned resource actions.
 | Tailscale node transport | Static/plan validated; live E2E pending | `node_transport_mode = "tailscale"` has static validation and plan-matrix coverage; recommended for evaluation, not yet certified for production topologies. |
 | Embedded registry mirror | Supported opt-in | Enables k3s/RKE2's embedded Spegel mirror for trusted larger clusters. |
 | Cilium multinetwork public overlay | Experimental preview | Gated by `enable_experimental_cilium_public_overlay`; not production-supported until live datapath validation passes. |
-| Flannel/Cilium multinetwork scale over Hetzner Networks | Supported through Tailscale transport | Flannel is the first supported CNI; Cilium is gated as experimental until live datapath coverage promotes it. |
+| Flannel multinetwork scale over Hetzner Networks | Static/plan validated through Tailscale transport; live E2E pending | Flannel is the first supported CNI for `node_transport_mode = "tailscale"`; Cilium multinetwork remains the separate experimental public-overlay preview until live datapath coverage promotes it. |
 | Cloudflare Zero Trust Access/Tunnel | Documented external access pattern | Use user-managed Cloudflare Access/Tunnel for operator, SSH, Rancher, or ingress access. kube-hetzner does not manage Cloudflare resources or support Cloudflare Mesh/WARP as node transport in v3. |
 | User-owned Tailscale/ZeroTier/WireGuard/WARP access | Supported external pattern | Use generic hooks when you only want Terraform/operator access and do not want kube-hetzner to manage node transport. |
 | Robot/vSwitch coupling | Advanced/special-case | Prefer blue/green migration and review route exposure carefully. |
@@ -190,7 +190,7 @@ Before applying a v3 upgrade, confirm:
 <td width="50%" valign="top">
 
 ### 🔄 High Availability
-- [x] **HA by default** — 3 control-planes + 2 agents across AZs
+- [x] **HA showcase topology** — `kube.tf.example` defines 3 control-plane pools + 6 active static agent pools (7 agent nodes)
 - [x] **Super-HA** — Span multiple Hetzner locations
 - [x] **Cluster autoscaler** — Automatic node scaling
 - [x] **Embedded registry mirror** — Opt-in k3s/RKE2 Spegel mirror for trusted large clusters
@@ -306,6 +306,11 @@ Provider/runtime assertions still belong in resource preconditions, postconditio
 ```sh
 tmp_script=$(mktemp) && curl -sSL -o "${tmp_script}" https://raw.githubusercontent.com/kube-hetzner/terraform-hcloud-kube-hetzner/master/scripts/create.sh && chmod +x "${tmp_script}" && "${tmp_script}" && rm "${tmp_script}"
 ```
+
+The downloaded `kube.tf.example` is an exhaustive showcase, not a minimal
+starter: it currently defines 3 control-plane pools (3 nodes) and 6 active static
+agent pools (7 agent nodes) covering storage, egress, ARM, and node-map examples.
+Trim the pools and feature examples you do not need before first apply.
 
 <details>
 <summary><strong>Fish shell version</strong></summary>
@@ -457,7 +462,10 @@ Cluster Autoscaler will not scale down nodes that run pods with local storage un
 
 ## 🛡️ High Availability
 
-Default: **3 control-planes + 3 agents** with automatic upgrades.
+The example `kube.tf.example` is an exhaustive showcase: **3 control-plane pools
+(3 nodes) + 6 active static agent pools (7 agent nodes)** with automatic
+upgrades. For a minimal start, trim any control-plane or agent pools and feature
+examples you do not need before first apply.
 
 | Control Planes | Recommendation |
 |----------------|----------------|
@@ -474,10 +482,15 @@ See [Rancher's HA documentation](https://rancher.com/docs/k3s/latest/en/installa
 ### OS Upgrades (Leap Micro / MicroOS)
 
 Handled by [Kured](https://github.com/kubereboot/kured)—safe, HA-aware reboots. Configure timeframes via [Kured options](https://kured.dev/docs/configuration/).
+Set `enable_kured = false` only when reboot orchestration is managed externally;
+`automatically_upgrade_os` controls the host update timer, not Kured deployment.
 
 ### K3s Upgrades
 
 Managed by [system-upgrade-controller](https://github.com/rancher/system-upgrade-controller). Customize the [upgrade plan template](templates/plans.yaml.tpl).
+Set `enable_system_upgrade_controller = false` only when the controller and plans
+are managed externally; `automatically_upgrade_kubernetes` controls upgrade
+activity, not system-upgrade-controller deployment.
 
 ### Disable Automatic Upgrades
 
@@ -527,7 +540,8 @@ Use the `kustomization_backup.yaml` file created during installation:
 
 Most components use [Helm Chart](https://rancher.com/docs/k3s/latest/en/helm/) definitions via k3s Helm Controller.
 
-See `kube.tf.example` for examples.
+See `kube.tf.example` for the exhaustive showcase; trim unused pools and feature
+blocks for a minimal start.
 
 ---
 
