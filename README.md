@@ -116,7 +116,7 @@ Only apply after reviewing all planned resource actions.
 | Addon version defaults | Reviewed deterministic defaults | Unset addon version variables use the module's reviewed version matrix; set `latest` only when you intentionally want upstream latest behavior. |
 | Cilium dual-stack | Supported | Preferred advanced CNI path. |
 | Cilium Gateway API | Supported opt-in | `cilium_gateway_api_enabled = true` installs standard Gateway API CRDs and enables Cilium Gateway API. Requires Cilium with kube-proxy replacement. |
-| Tailscale node transport | Supported opt-in | `node_transport_mode = "tailscale"` provides secure Tailnet access for single-network clusters and private route transport for multinetwork scale while Kubernetes keeps Hetzner node IPs. |
+| Tailscale node transport | Static/plan validated; live E2E pending | `node_transport_mode = "tailscale"` has static validation and plan-matrix coverage; recommended for evaluation, not yet certified for production topologies. |
 | Embedded registry mirror | Supported opt-in | Enables k3s/RKE2's embedded Spegel mirror for trusted larger clusters. |
 | Cilium multinetwork public overlay | Experimental preview | Gated by `enable_experimental_cilium_public_overlay`; not production-supported until live datapath validation passes. |
 | Flannel/Cilium multinetwork scale over Hetzner Networks | Supported through Tailscale transport | Flannel is the first supported CNI; Cilium is gated as experimental until live datapath coverage promotes it. |
