@@ -7,7 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-_No unreleased changes._
+### 🐛 Bug Fixes
+
+- **Zero-agent clusters: post-apply plans no longer fail** - On v3.0.0, clusters with `agent_nodepools = []` failed every plan after the first apply with `no change found for terraform_data.agents`, because post-install readiness listed a zero-instance `for_each` resource in `replace_triggered_by`. Readiness now reacts through a single-instance aggregator of agent ids. Upgrading creates one new internal resource and does **not** replace or re-run post-install readiness; future agent additions/removals/replacements re-run only the read-only readiness waits. Fixes #2236, #2238 (#2237, thanks @nikolauspschuetz, @tauhir, @h-mergel).
 
 ---
 
